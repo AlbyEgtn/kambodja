@@ -23,7 +23,7 @@ class OwnerDashboardController extends Controller
 
         $bahanHabis = BahanBaku::all()->filter(function ($b) {
             if ($b->satuan == 'pcs' && $b->stok <= 15) return true;
-            if (in_array($b->satuan, ['gram', 'ml']) && $b->stok <= 500) return true;
+            if (in_array($b->satuan, ['gram', 'ml']) && $b->stok <= 1000) return true;
             if ($b->stok <= 5) return true;
             return false;
         });

@@ -98,7 +98,7 @@
 
     <div class="login-container">
 
-        <div class="title">Sistem Kasir Kambojda</div>
+        <div class="title">Kambojda</div>
         <div class="subtitle">Silakan login untuk melanjutkan</div>
 
         @if ($errors->any())
