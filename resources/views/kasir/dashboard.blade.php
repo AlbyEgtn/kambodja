@@ -3,7 +3,9 @@
 <head>
 <meta charset="UTF-8">
 <title>Dashboard Kasir</title>
-
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <style>
     body {
         font-family: 'Segoe UI', sans-serif;
@@ -43,15 +45,6 @@
         text-decoration:underline;
     }
 
-    .btn-logout {
-        background:#c62828;
-        padding:8px 14px;
-        border:none;
-        border-radius:6px;
-        color:white;
-        cursor:pointer;
-        font-weight:600;
-    }
 
     /* CARD */
     .card {
@@ -90,6 +83,76 @@
     .hadir { background:#c8e6c9; color:#256029; }
     .terlambat { background:#ffe082; color:#8d6e63; }
     .waiting { background:#fff3cd; color:#8a6d3b; }
+    /* =================== */
+    /*  USER DROPDOWN KASIR */
+    /* =================== */
+
+    .user-area {
+        position: relative;
+        display: inline-block;
+    }
+
+    .user-trigger {
+        background: rgba(255,255,255,0.15);
+        padding: 8px 14px;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        cursor: pointer;
+        color: white;
+        font-size: 14px;
+        font-weight: 600;
+        transition: 0.2s;
+    }
+
+    .user-trigger:hover {
+        background: rgba(255,255,255,0.25);
+    }
+
+    .user-trigger i {
+        font-size: 14px;
+    }
+
+    .dropdown-icon {
+        font-size: 13px;
+        transform: translateY(1px);
+    }
+
+    /* Dropdown box */
+    .user-dropdown {
+        position: absolute;
+        right: 0;
+        top: 45px;
+        background: white;
+        width: 150px;
+        padding: 10px 0;
+        border-radius: 8px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        display: none;
+        z-index: 999;
+    }
+
+    /* Logout item */
+    .logout-item {
+        width: 100%;
+        background: none;
+        border: none;
+        text-align: left;
+        padding: 10px 15px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        color: #c62828;
+        font-size: 14px;
+        font-weight: 600;
+        cursor: pointer;
+    }
+
+    .logout-item:hover {
+        background: #fdecea;
+    }
+
 </style>
 
 </head>
@@ -102,15 +165,30 @@
     </div>
 
     <div class="navbar-menu">
+        <a href="{{ route('kasir.beranda') }}">Beranda</a>
         <a href="{{ route('absen.index') }}">Absensi</a>
         <a href="{{ route('absen.riwayat') }}">Riwayat Absensi</a>
-        <a href="#">Transaksi (coming soon)</a>
+        <a href="{{ route('kasir.transaksi') }}">Transaksi</a>
         <a href="#">Riwayat Transaksi</a>
 
-        <form method="POST" action="{{ route('logout') }}" style="display:inline;">
-            @csrf
-            <button class="btn-logout">Logout</button>
-        </form>
+        <div class="user-area">
+            <div class="user-trigger" onclick="toggleUserDropdown()">
+                <i class="fa-regular fa-user"></i>
+                <span>{{ Auth::user()->nama_lengkap }}</span>
+                <i class="fa-solid fa-caret-down dropdown-icon"></i>
+            </div>
+
+            <div class="user-dropdown" id="dropdownKasir">
+                <form method="POST" action="{{ route('logout') }}">
+                    @csrf
+                    <button class="logout-item">
+                        <i class="fa-solid fa-right-from-bracket"></i>
+                        Logout
+                    </button>
+                </form>
+            </div>
+        </div>
+
     </div>
 </div>
 
@@ -161,6 +239,21 @@
     </table>
 
 </div>
+<script>
+function toggleUserDropdown() {
+    const menu = document.getElementById("dropdownKasir");
+    menu.style.display = menu.style.display === "block" ? "none" : "block";
+}
+
+document.addEventListener("click", function(e) {
+    const area = document.querySelector(".user-area");
+    const menu = document.getElementById("dropdownKasir");
+
+    if (!area.contains(e.target)) {
+        menu.style.display = "none";
+    }
+});
+</script>
 
 </body>
 </html>

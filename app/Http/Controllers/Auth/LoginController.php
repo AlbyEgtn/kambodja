@@ -43,7 +43,7 @@ class LoginController extends Controller
         $role = $user->role->nama;
 
         if ($role === 'Karyawan') return redirect()->route('karyawan.dashboard');
-        if ($role === 'Kasir') return redirect()->route('kasir.dashboard');
+        if ($role === 'Kasir') return redirect()->route('kasir.beranda');
         if ($role === 'Owner') return redirect()->route('owner.dashboard');
 
         return redirect('/login')->withErrors(['role' => 'Role tidak dikenali']);

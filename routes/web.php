@@ -7,6 +7,8 @@ use App\Http\Controllers\OwnerAbsensiController;
 use App\Http\Controllers\UserManagementController;
 use App\Http\Controllers\BahanBakuController;
 use App\Http\Controllers\OwnerDashboardController;
+use App\Http\Controllers\KasirDashboardController;
+use App\Http\Controllers\KasirTransaksiController;
 use App\Http\Controllers\ResepController;
 
 Route::get('/', function () {
@@ -67,9 +69,6 @@ Route::middleware(['auth', 'role:Owner'])->group(function () {
     Route::put('/owner/resep/{menuId}', [ResepController::class, 'update'])->name('resep.update');
     Route::delete('/owner/menu/{id}', [ResepController::class, 'destroyMenu'])->name('menu.destroy');
 
-
-
-
 });
 
 // Karyawan & Kasir
@@ -86,7 +85,12 @@ Route::middleware(['auth', 'role:Karyawan,Kasir'])->group(function () {
 Route::middleware(['auth','role:Kasir'])->group(function () {
     Route::get('/kasir/dashboard', [AbsensiController::class, 'dashboardKasir'])
         ->name('kasir.dashboard');
+    Route::get('/kasir/beranda', [KasirDashboardController::class, 'index'])->name('kasir.beranda');
+    Route::get('/kasir/transaksi', [KasirTransaksiController::class, 'index'])->name('kasir.transaksi');
+    Route::post('/kasir/transaksi/simpan', [KasirTransaksiController::class, 'simpan'])->name('kasir.transaksi.simpan');
+    Route::get('/kasir/riwayat', [KasirTransaksiController::class, 'riwayat'])->name('kasir.riwayat');
 });
+
 
 // KARYAWAN
 Route::middleware(['auth', 'role:Karyawan,Kasir'])->group(function () {

@@ -1,9 +1,12 @@
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <nav class="navbar-karyawan">
 
     <!-- BRAND / LOGO -->
     <a href="{{ url('/karyawan/dashboard') }}" class="nav-brand">
-        <i class="fa-solid fa-mug-hot"></i>
-        <span>Kedai Kambojda</span>
+        <i class="fa-solid fa-mug-hot" style="color:white; font-size:18px;">
+        <span class="brand-title">Kedai Kambojda</span></i>
     </a>
 
     <!-- MENU -->
@@ -25,10 +28,22 @@
     </div>
 
     <!-- LOGOUT -->
-    <form action="{{ route('logout') }}" method="POST">
-        @csrf
-        <button type="submit" class="logout-btn">Logout</button>
-    </form>
+    <div class="user-area">
+        <div class="user-trigger" onclick="toggleUserDropdown()">
+            <i class="fa-solid fa-user"></i>
+            <span>{{ Auth::user()->username }}</span>
+            <i class="fa-solid fa-chevron-down dropdown-icon"></i>
+        </div>
+
+        <div class="user-dropdown" id="dropdownUserKaryawan">
+            <form action="{{ route('logout') }}" method="POST">
+                @csrf
+                <button class="logout-item">
+                    <i class="fa-solid fa-right-from-bracket"></i> Logout
+                </button>
+            </form>
+        </div>
+    </div>
 
 </nav>
 
@@ -44,6 +59,11 @@
         color:white;
         font-family:'Segoe UI', sans-serif;
     }
+    .user-trigger .dropdown-icon {
+    font-size: 12px;
+    color: white !important;
+    margin-left: 2px;
+}
 
     /* Brand */
     .navbar-karyawan .nav-brand {
@@ -85,19 +105,91 @@
     }
 
     /* Logout Button */
-    .logout-btn {
-        background:#c62828;
-        border:none;
-        color:white;
-        padding:8px 14px;
-        font-size:14px;
-        border-radius:6px;
-        cursor:pointer;
-        font-weight:600;
-        transition:0.2s;
+/* USER DROPDOWN */
+    .user-area {
+        position: relative;
     }
 
-    .logout-btn:hover {
-        background:#8e0000;
+    .user-trigger {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+
+    background: #0A8273;               /* hijau soft seperti foto */
+    padding: 8px 14px;                 /* ukuran lebih pas */
+    border-radius: 10px;               /* rounded sama */
+
+    cursor: pointer;
+    color: white;
+    font-size: 15px;
+    font-weight: 600;                  /* tebal seperti foto */
+    transition: 0.2s;
+    line-height: 1;
+}
+
+    .user-trigger i {
+        font-size: 16px;                    /* icon user lebih jelas */
     }
+
+    .dropdown-icon {
+        font-size: 14px;                    /* icon kecil */
+        margin-left: 2px;
+        transform: translateY(1px);         /* sejajarkan seperti foto */
+    }
+
+
+        .user-trigger:hover {
+            background: rgba(255,255,255,0.25);
+        }
+
+
+    /* BOX DROPDOWN */
+    .user-dropdown {
+        position: absolute;
+        right: 0;
+        top: 40px;
+        width: 150px;
+        background: white;
+        border-radius: 8px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        padding: 10px 0;
+        display: none;
+        z-index: 999;
+    }
+
+    /* Logout item */
+    .logout-item {
+        width: 100%;
+        background: none;
+        border: none;
+        padding: 10px 15px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-size: 14px;
+        color: #c62828;
+        font-weight: 600;
+        cursor: pointer;
+    }
+
+    .logout-item:hover {
+        background: #fdecea;
+    }
+
 </style>
+<script>
+function toggleUserDropdown() {
+    const menu = document.getElementById("dropdownUserKaryawan");
+    menu.style.display = menu.style.display === "block" ? "none" : "block";
+}
+
+
+document.addEventListener("click", function(e) {
+    const area = document.querySelector(".user-area");
+    const menu = document.getElementById("dropdownUserKaryawan");
+
+    if (!area.contains(e.target)) {
+        menu.style.display = "none";
+    }
+});
+</script>
