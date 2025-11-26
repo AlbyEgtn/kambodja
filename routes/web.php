@@ -7,6 +7,7 @@ use App\Http\Controllers\OwnerAbsensiController;
 use App\Http\Controllers\UserManagementController;
 use App\Http\Controllers\BahanBakuController;
 use App\Http\Controllers\OwnerDashboardController;
+use App\Http\Controllers\ResepController;
 
 Route::get('/', function () {
     return view('../auth/login');
@@ -57,6 +58,17 @@ Route::middleware(['auth', 'role:Owner'])->group(function () {
     Route::post('/owner/verifikasi-absensi/{id}/approve', [OwnerAbsensiController::class, 'approve']);
     Route::post('/owner/verifikasi-absensi/{id}/reject', [OwnerAbsensiController::class, 'reject']);
 
+    /// Resep
+    Route::get('/owner/resep', [ResepController::class, 'index'])->name('resep.index');
+    Route::post('/owner/resep', [ResepController::class, 'store'])->name('resep.store');
+    Route::post('/owner/resep/menu', [ResepController::class, 'storeMenu'])->name('resep.menu.store');
+    Route::delete('/owner/resep/{id}', [ResepController::class, 'destroy'])->name('resep.destroy');
+    Route::get('/owner/resep/{menuId}/json', [ResepController::class, 'getResepJson']);
+    Route::put('/owner/resep/{menuId}', [ResepController::class, 'update'])->name('resep.update');
+    Route::delete('/owner/menu/{id}', [ResepController::class, 'destroyMenu'])->name('menu.destroy');
+
+
+
 
 });
 
@@ -71,6 +83,10 @@ Route::middleware(['auth', 'role:Karyawan,Kasir'])->group(function () {
 
 
 // KASIR
+Route::middleware(['auth','role:Kasir'])->group(function () {
+    Route::get('/kasir/dashboard', [AbsensiController::class, 'dashboardKasir'])
+        ->name('kasir.dashboard');
+});
 
 // KARYAWAN
 Route::middleware(['auth', 'role:Karyawan,Kasir'])->group(function () {

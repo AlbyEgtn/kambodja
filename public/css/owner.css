@@ -1,0 +1,240 @@
+/* ================================
+   GLOBAL FIXES
+================================ */
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    padding: 0;
+    font-family: 'Inter', sans-serif;
+    background: #f3f6f9;
+}
+
+/* VIEWPORT FIX → Tidak mengecil di HP */
+html {
+    -webkit-text-size-adjust: 100%;
+}
+
+/* ================================
+   NAVBAR MODERN + RESPONSIVE
+================================ */
+
+.topnav {
+    background: #00695c;
+    padding: 12px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: sticky;
+    top: 0;
+    z-index: 999;
+    width: 100%;
+    margin: 0;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+/* Brand */
+.brand-left {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: white;
+    font-size: 18px;
+    font-weight: 600;
+    text-decoration: none;
+}
+
+/* Button hamburger */
+.menu-toggle {
+    display: none;
+    font-size: 25px;
+    color: white;
+    cursor: pointer;
+}
+
+/* Menu desktop */
+.nav-menu {
+    display: flex;
+    gap: 25px;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.nav-menu li a {
+    color: #d8f8f2;
+    text-decoration: none;
+    font-weight: 500;
+    padding: 8px 12px;
+    border-radius: 6px;
+    transition: 0.25s;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.nav-menu li a:hover {
+    background: rgba(255,255,255,0.15);
+    color: white;
+}
+
+.nav-active {
+    background: rgba(255,255,255,0.20);
+    color: white !important;
+    font-weight: 600;
+}
+
+/* Logout btn */
+.logout-btn {
+    background: #d32f2f;
+    padding: 8px 14px;
+    border: none;
+    border-radius: 6px;
+    color: white;
+    font-weight: 500;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.logout-btn:hover {
+    background: #b71c1c;
+}
+
+/* ========== MOBILE NAV ========== */
+@media(max-width: 768px) {
+
+    .menu-toggle {
+        display: block;
+    }
+
+    .nav-menu {
+        display: none;
+        width: 100%;
+        flex-direction: column;
+        padding-top: 12px;
+        margin-top: 12px;
+        border-top: 1px solid rgba(255,255,255,0.25);
+    }
+
+    .nav-menu.show {
+        display: flex;
+    }
+
+    .nav-menu li a {
+        padding: 12px 10px;
+        font-size: 15px;
+        border-radius: 8px;
+    }
+
+    form {
+        width: 100%;
+    }
+
+    .logout-btn {
+        width: 100%;
+        padding: 12px;
+        font-size: 15px;
+    }
+}
+
+/* ================================
+   DASHBOARD CONTAINER
+================================ */
+
+.dashboard-container {
+    max-width: 1150px;
+    margin: 20px auto;
+    padding: 0 15px;
+}
+
+.card-dashboard {
+    background: white;
+    padding: 25px;
+    border-radius: 14px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+}
+
+/* ================================
+   STAT BOX (RINGKASAN)
+================================ */
+
+.grid {
+    display: grid;
+    gap: 18px;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    margin-top: 10px;
+}
+
+.stat {
+    background: #e9f6f5;
+    padding: 20px;
+    border-radius: 14px;
+    text-align: center;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+    transition: 0.3s;
+}
+
+.stat:hover {
+    transform: translateY(-3px);
+}
+
+.stat.green { background: #e8f5e9; }
+.stat.blue { background: #e3f2fd; }
+
+.stat h4 {
+    font-size: 15px;
+    margin: 0 0 5px;
+    color: #004d40;
+}
+
+.stat p {
+    font-size: 22px;
+    font-weight: 700;
+    color: #00695c;
+}
+
+/* ================================
+   TABLE STYLING
+================================ */
+
+.table-box {
+    background: white;
+    padding: 18px;
+    border-radius: 12px;
+    margin-top: 25px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+}
+
+th {
+    background: #e0f2f1;
+    padding: 12px;
+    font-weight: 600;
+}
+
+td {
+    padding: 12px;
+    border-bottom: 1px solid #ddd;
+}
+
+/* TABLE MOBILE FIX */
+@media(max-width: 600px) {
+    table {
+        display: block;
+        overflow-x: auto;
+        white-space: nowrap;
+    }
+
+    th, td {
+        padding: 10px;
+        font-size: 13px;
+    }
+}

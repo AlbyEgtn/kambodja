@@ -7,6 +7,55 @@
 
 <style>
     body { font-family: 'Segoe UI', sans-serif; background:#f5f7fa; margin:0; padding:0; }
+    .navbar {
+    background:#00695c;
+    padding:14px 22px;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    color:white;
+}
+
+.navbar-left {
+    font-size:20px;
+    font-weight:600;
+}
+
+.navbar-menu a {
+    color:white;
+    margin-right:20px;
+    text-decoration:none;
+    font-weight:500;
+}
+
+.navbar-menu a:hover {
+    text-decoration:underline;
+}
+
+.btn-logout {
+    background:#c62828;
+    border:none;
+    padding:8px 14px;
+    border-radius:6px;
+    color:white;
+    cursor:pointer;
+    font-weight:600;
+}
+/* ====== BACK BUTTON ====== */
+.back-btn {
+    display:inline-block;
+    margin-bottom:15px;
+    background:#546e7a;
+    padding:8px 14px;
+    border-radius:6px;
+    color:white;
+    text-decoration:none;
+    font-weight:600;
+}
+.back-btn:hover {
+    background:#455a64;
+}
+
     header { background:#004d40; color:#fff; padding:15px; text-align:center; font-size:20px; }
     .container { max-width:1100px; margin:28px auto; padding:0 16px; }
     .card { background:#fff; padding:22px; border-radius:10px; box-shadow:0 4px 12px rgba(0,0,0,0.06); }
@@ -31,10 +80,22 @@
 </head>
 <body>
 
-@include('components.navbar-karyawan')
+<div class="navbar">
+    <div class="navbar-left">Kedai Kambojda</div>
+    <div class="navbar-left">Riwayat Absnesi</div>
+
+    <div class="navbar-menu">
+        <form style="display:inline;" method="POST" action="{{ route('logout') }}">
+            @csrf
+            <button class="btn-logout">Logout</button>
+        </form>
+    </div>
+</div>
 
 <div class="container">
+    
   <div class="card">
+    <a class="back-btn" href="{{ url()->previous() }}">← Kembali</a>
     <h3>Riwayat Absensi Saya</h3>
 
     <form method="GET" class="filter" action="{{ route('absen.riwayat') }}">

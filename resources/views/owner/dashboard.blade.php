@@ -3,6 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <title>Dashboard Owner</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
 
 <style>
 body { font-family:'Segoe UI',sans-serif; background:#f5f7fa; margin:0; }
@@ -57,6 +59,43 @@ th {
     background:#e0f2f1;
     text-align:left;
 }
+
+/* ===== RESPONSIVE MOBILE ===== */
+@media (max-width: 768px) {
+    .card {
+        padding: 18px;
+        margin: 15px;
+    }
+
+    h2 {
+        font-size: 20px;
+        text-align: center;
+    }
+
+    .grid {
+        grid-template-columns: 1fr;
+        gap: 12px;
+    }
+
+    table {
+        font-size: 14px;
+    }
+
+    th, td {
+        padding: 8px;
+    }
+}
+
+@media (max-width: 480px) {
+    h3 {
+        font-size: 16px;
+    }
+
+    .stat p {
+        font-size: 18px;
+    }
+}
+
 </style>
 </head>
 

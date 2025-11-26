@@ -17,4 +17,8 @@ class BahanBaku extends Model
         'created_at',
         'updated_at'
     ];
+    public function resep()
+    {
+        return $this->hasMany(Resep::class, 'bahan_id');
+    }
 }

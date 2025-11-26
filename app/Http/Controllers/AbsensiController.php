@@ -85,6 +85,15 @@ class AbsensiController extends Controller
     return back()->with('success', 'Absensi keluar berhasil!');
 }
 
+    public function dashboardKasir()
+    {
+        $absen = Absensi::where('user_id', Auth::id())
+                        ->where('tanggal', now()->toDateString())
+                        ->first();
+
+        return view('kasir.dashboard', compact('absen'));
+    }
+
 
 /// Fungsi Riwayat Absensi
 // menampilkan riwayat absensi hanya untuk user yang sedang login

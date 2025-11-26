@@ -2,7 +2,7 @@
 <html lang="id">
 <head>
 <meta charset="UTF-8">
-<title>Absensi Karyawan</title>
+<title>Absensi</title>
 
 <style>
 
@@ -12,6 +12,57 @@ body {
     background:#f0f3f4;
     margin:0;
     padding:0;
+}
+
+/* ====== NAVBAR ====== */
+.navbar {
+    background:#00695c;
+    padding:14px 22px;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    color:white;
+}
+
+.navbar-left {
+    font-size:20px;
+    font-weight:600;
+}
+
+.navbar-menu a {
+    color:white;
+    margin-right:20px;
+    text-decoration:none;
+    font-weight:500;
+}
+
+.navbar-menu a:hover {
+    text-decoration:underline;
+}
+
+.btn-logout {
+    background:#c62828;
+    border:none;
+    padding:8px 14px;
+    border-radius:6px;
+    color:white;
+    cursor:pointer;
+    font-weight:600;
+}
+
+/* ====== BACK BUTTON ====== */
+.back-btn {
+    display:inline-block;
+    margin-bottom:15px;
+    background:#546e7a;
+    padding:8px 14px;
+    border-radius:6px;
+    color:white;
+    text-decoration:none;
+    font-weight:600;
+}
+.back-btn:hover {
+    background:#455a64;
 }
 
 /* ====== CARD ====== */
@@ -51,19 +102,11 @@ button {
     transition:0.25s;
 }
 
-.btn-masuk {
-    background:#2e7d32;
-}
-.btn-masuk:hover {
-    background:#1b5e20;
-}
+.btn-masuk { background:#2e7d32; }
+.btn-masuk:hover { background:#1b5e20; }
 
-.btn-keluar {
-    background:#ef6c00;
-}
-.btn-keluar:hover {
-    background:#d84300;
-}
+.btn-keluar { background:#ef6c00; }
+.btn-keluar:hover { background:#d84300; }
 
 /* ====== TABLE ====== */
 table {
@@ -89,12 +132,9 @@ td {
     background:#ffffff;
 }
 
-/* Alternating row color */
-tr:nth-child(even) td {
-    background:#f9fbfa;
-}
+tr:nth-child(even) td { background:#f9fbfa; }
 
-/* ====== BADGE ====== */
+/* ====== BADGES ====== */
 .badge {
     padding:6px 14px; 
     border-radius:20px; 
@@ -102,33 +142,12 @@ tr:nth-child(even) td {
     font-weight:600;
 }
 
-/* Hadir */
-.hadir {
-    background:#c8e6c9;
-    color:#1b5e20;
-}
+.hadir { background:#c8e6c9; color:#1b5e20; }
+.terlambat { background:#ffe082; color:#8d6e63; }
 
-/* Terlambat */
-.terlambat {
-    background:#ffe082;
-    color:#8d6e63;
-}
-
-/* Verifikasi Badges */
-.badge-wait {
-    background:#fff3cd; 
-    color:#8a6d3b;
-}
-
-.badge-ok {
-    background:#c8e6c9; 
-    color:#256029;
-}
-
-.badge-no {
-    background:#ffcdd2; 
-    color:#c62828;
-}
+.badge-wait { background:#fff3cd; color:#8a6d3b; }
+.badge-ok { background:#c8e6c9; color:#256029; }
+.badge-no { background:#ffcdd2; color:#c62828; }
 
 /* ====== ALERT ====== */
 .alert {
@@ -138,36 +157,33 @@ tr:nth-child(even) td {
     font-size:14px;
 }
 
-.alert-success {
-    background:#c8e6c9; 
-    color:#2e7d32;
-}
-
-.alert-error {
-    background:#ffcdd2; 
-    color:#c62828;
-}
-
-/* ====== RESPONSIVE ====== */
-@media (max-width: 600px) {
-    .card {
-        padding:20px;
-        margin:20px;
-    }
-    button {
-        width:100%;
-    }
-}
+.alert-success { background:#c8e6c9; color:#2e7d32; }
+.alert-error { background:#ffcdd2; color:#c62828; }
 
 </style>
 
 </head>
-
 <body>
-@include('components.navbar-karyawan')
+
+<!-- NAVBAR -->
+<div class="navbar">
+    <div class="navbar-left">Kedai Kambojda</div>
+    <div class="navbar-left">Absensi</div>
+
+    <div class="navbar-menu">
+        <form style="display:inline;" method="POST" action="{{ route('logout') }}">
+            @csrf
+            <button class="btn-logout">Logout</button>
+        </form>
+    </div>
+</div>
+
+<!-- CONTENT -->
 <div class="card">
 
-    <h3>Absensi Karyawan</h3>
+    <a class="back-btn" href="{{ url()->previous() }}">← Kembali</a>
+
+    <h3>Absensi</h3>
     <p>Tekan tombol di bawah untuk melakukan absensi.</p>
 
     <!-- MESSAGE -->
@@ -216,28 +232,22 @@ tr:nth-child(even) td {
             </td>
             <td>
                 @if($absen->verifikasi_owner == 'Belum Diverifikasi')
-                    <span class="badge" style="background:#fff3cd; color:#8a6d3b;">
-                        Menunggu
-                    </span>
+                    <span class="badge badge-wait">Menunggu</span>
                 @elseif($absen->verifikasi_owner == 'Diverifikasi')
-                    <span class="badge" style="background:#c8e6c9; color:#256029;">
-                        Diverifikasi
-                    </span>
+                    <span class="badge badge-ok">Diverifikasi</span>
                 @else
-                    <span class="badge" style="background:#ffcdd2; color:#c62828;">
-                        Ditolak
-                    </span>
+                    <span class="badge badge-no">Ditolak</span>
                 @endif
             </td>
         </tr>
         @else
         <tr>
-            <td colspan="4" style="text-align:center; color:#666;">Belum ada absensi hari ini</td>
+            <td colspan="5" style="text-align:center; color:#666;">Belum ada absensi hari ini</td>
         </tr>
         @endif
 
     </table>
-    
+
 </div>
 
 </body>
