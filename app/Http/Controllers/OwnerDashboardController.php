@@ -3,37 +3,66 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
+use App\Models\Role;
 use App\Models\BahanBaku;
+use App\Models\Transaksi;
 use Illuminate\Http\Request;
 
 class OwnerDashboardController extends Controller
 {
     public function index()
     {
-        $totalUser = User::count();
-
-        $totalKaryawan = User::where('role_id', function($q){
-            $q->select('id')
-              ->from('roles')
-              ->where('nama', 'Karyawan')
-              ->limit(1);
+        // ringkasan
+        $totalUser     = User::count();
+        $roleKaryawan = Role::where('nama', 'karyawan')->first();
+        $totalKaryawan = User::whereHas('role', function($q){
+            $q->whereIn('nama', ['karyawan','kasir']);
         })->count();
 
-        $totalBahan = BahanBaku::count();
+        $totalBahan    = BahanBaku::count();
+        $metodePembayaran = Transaksi::selectRaw('metode_bayar, COUNT(*) as total')
+                        ->groupBy('metode_bayar')
+                        ->get();
+        
+        // bahan hampir habis (sesuaikan threshold jika perlu)
+        $bahanHabis = BahanBaku::where(function($q){
+            $q->where(function($q2){
+                $q2->where('satuan','pcs')->where('stok','<=',15);
+            })->orWhere(function($q3){
+                $q3->whereIn('satuan',['gram','ml'])->where('stok','<=',1000);
+            });
+        })->get();
 
-        $bahanHabis = BahanBaku::all()->filter(function ($b) {
-            if ($b->satuan == 'pcs' && $b->stok <= 15) return true;
-            if (in_array($b->satuan, ['gram', 'ml']) && $b->stok <= 1000) return true;
-            if ($b->stok <= 5) return true;
-            return false;
-        });
+        // riwayat transaksi terbaru (mis. 10)
+        $riwayat = Transaksi::orderBy('tanggal', 'desc')
+                    ->take(3)
+                    ->get();
 
+        // data grafik: pendapatan per hari (tanggal, total)
+        $from = request('from');
+        $to   = request('to');
+
+        $grafikQuery = Transaksi::selectRaw('DATE(tanggal) as tgl, SUM(total_harga) as total');
+
+        if ($from) {
+            $grafikQuery->whereDate('tanggal', '>=', $from);
+        }
+
+        if ($to) {
+            $grafikQuery->whereDate('tanggal', '<=', $to);
+        }
+
+        $grafik = $grafikQuery
+                    ->groupBy('tgl')
+                    ->orderBy('tgl','ASC')
+                    ->get();
+
+            
+        // kirim semua variabel ke view
         return view('owner.dashboard', compact(
-            'totalUser',
-            'totalKaryawan',
-            'totalBahan',
-            'bahanHabis'
-        ));
+            'totalUser','totalKaryawan','totalBahan','bahanHabis','riwayat','grafik','metodePembayaran'
+    ));
+
     }
 }
 

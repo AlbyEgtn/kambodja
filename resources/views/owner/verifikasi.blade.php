@@ -157,7 +157,6 @@ nav a:hover {
         <tr>
             <th>Nama</th>
             <th>Tanggal</th>
-            <th>Status</th>
             <th>Verifikasi</th>
         </tr>
 
@@ -165,7 +164,6 @@ nav a:hover {
         <tr>
             <td>{{ $a->user->nama_lengkap }}</td>
             <td>{{ $a->tanggal }}</td>
-            <td>{{ $a->status }}</td>
             <td>
 
                 @if($a->verifikasi_owner === 'Belum Diverifikasi')

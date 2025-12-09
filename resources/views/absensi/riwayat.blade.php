@@ -124,9 +124,7 @@
                     <th>Tanggal</th>
                     <th>Jam Masuk</th>
                     <th>Jam Keluar</th>
-                    <th>Status</th>
                     <th>Verifikasi</th>
-                    <th>Catatan</th>
                 </tr>
             </thead>
             <tbody>
@@ -135,15 +133,6 @@
                     <td>{{ \Carbon\Carbon::parse($a->tanggal)->format('Y-m-d') }}</td>
                     <td>{{ $a->jam_masuk ?? '-' }}</td>
                     <td>{{ $a->jam_keluar ?? '-' }}</td>
-                    <td>
-                        @if(strtoupper($a->status) === 'HADIR')
-                            <span class="badge badge-hadir">Hadir</span>
-                        @elseif(strtoupper($a->status) === 'TERLAMBAT')
-                            <span class="badge badge-terlambat">Terlambat</span>
-                        @else
-                            <span class="badge">{{ $a->status }}</span>
-                        @endif
-                    </td>
                     <td>
                         @if($a->verifikasi_owner === 'Belum Diverifikasi')
                             <span class="badge badge-wait">Menunggu</span>

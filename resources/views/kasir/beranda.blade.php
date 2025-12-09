@@ -215,14 +215,20 @@ tbody tr:hover td {
                 <td>{{ $b->stok }}</td>
                 <td>{{ $b->satuan }}</td>
                 <td>
-                    @if($b->satuan == 'pcs' && $b->stok <= 10)
+                    @if($b->stok == 0)
+                        <span class="badge badge-no">Stok Habis</span>
+
+                    @elseif($b->satuan == 'pcs' && $b->stok <= 10)
                         <span class="badge badge-no">Sangat rendah (≤ 10 pcs)</span>
+
                     @elseif(in_array($b->satuan, ['gram','ml']) && $b->stok <= 500)
                         <span class="badge badge-no">Hampir habis (≤ 500 {{ $b->satuan }})</span>
+
                     @else
                         <span class="badge badge-terlambat">Stok rendah</span>
                     @endif
                 </td>
+
             </tr>
             @endforeach
         </table>
@@ -234,7 +240,7 @@ tbody tr:hover td {
     <!-- ============================ -->
     <!--  BAGIAN 2 : Absensi          -->
     <!-- ============================ -->
-    <h3>🕒 Riwayat Absensi Terbaru</h3>
+    <h3>Riwayat Absensi Terbaru</h3>
     <p class="section-title">Berikut adalah 7 absensi terakhir Anda.</p>
 
     @if($absensi->count() == 0)
@@ -248,7 +254,6 @@ tbody tr:hover td {
                 <th>Tanggal</th>
                 <th>Masuk</th>
                 <th>Keluar</th>
-                <th>Status</th>
                 <th>Verifikasi</th>
             </tr>
 
@@ -257,16 +262,6 @@ tbody tr:hover td {
                 <td>{{ $a->tanggal }}</td>
                 <td>{{ $a->jam_masuk ?? '-' }}</td>
                 <td>{{ $a->jam_keluar ?? '-' }}</td>
-
-                <td>
-                    @if(strtoupper($a->status) === 'HADIR')
-                        <span class="badge badge-hadir">Hadir</span>
-                    @elseif(strtoupper($a->status) === 'TERLAMBAT')
-                        <span class="badge badge-terlambat">Terlambat</span>
-                    @else
-                        <span class="badge">{{ $a->status }}</span>
-                    @endif
-                </td>
 
                 <td>
                     @if($a->verifikasi_owner == 'Belum Diverifikasi')

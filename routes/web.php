@@ -71,7 +71,18 @@ Route::middleware(['auth', 'role:Owner'])->group(function () {
 
 });
 
-// Karyawan & Kasir
+// laporan statistik
+Route::get('/owner/laporan-statistik', [App\Http\Controllers\LaporanController::class, 'index'])
+    ->name('laporan.statistik');
+Route::get('/owner/laporan-statistik/export-csv', 
+    [App\Http\Controllers\ExportController::class, 'exportCSV'])
+    ->name('laporan.export.csv');
+
+// Export Excel
+Route::get('/owner/laporan-statistik/export-excel', [App\Http\Controllers\LaporanController::class, 'exportExcel'])
+    ->name('laporan.statistik.excel');
+
+
 // Absensi Karyawan / Kasir
 Route::middleware(['auth', 'role:Karyawan,Kasir'])->group(function () {
     Route::get('/absensi', [AbsensiController::class, 'index'])->name('absen.index');

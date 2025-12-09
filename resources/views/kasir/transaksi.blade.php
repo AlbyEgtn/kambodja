@@ -198,12 +198,26 @@ function renderCart() {
 function showUangField() {
     let metode = document.getElementById("metodePembayaran").value;
     let box = document.getElementById("box-uang");
-
     box.style.display = metode === "tunai" ? "block" : "none";
 }
 
 document.addEventListener("DOMContentLoaded", showUangField);
 
+function tutupKonfirmasi() {
+    document.getElementById("modalKonfirmasi").style.display = "none";
+}
+
+function tutupStruk() {
+    document.getElementById("modalStruk").style.display = "none";
+}
+
+function cetakStruk() {
+    window.print();
+}
+
+/* ============================
+   FUNGSI BAYAR — HANYA SHOW MODAL
+   ============================ */
 function bayar() {
     let total = parseInt(document.getElementById("total").innerText.replace(/\D/g, ""));
     let metode = document.getElementById("metodePembayaran").value;
@@ -213,6 +227,21 @@ function bayar() {
         return;
     }
 
+    document.getElementById("konfirmasiText").innerHTML = `
+        Yakin ingin memproses pembayaran?<br><br>
+        Metode: <b>${metode.toUpperCase()}</b><br>
+        Total: <b>Rp${total.toLocaleString()}</b>
+    `;
+
+    document.getElementById("modalKonfirmasi").style.display = "flex";
+}
+
+/* ==================================
+   FUNGSI PROSES PEMBAYARAN — SUBMIT
+   ================================== */
+function prosesPembayaran() {
+    let total = parseInt(document.getElementById("total").innerText.replace(/\D/g, ""));
+    let metode = document.getElementById("metodePembayaran").value;
     let uangPembeli = 0;
 
     if (metode === "tunai") {
@@ -222,7 +251,6 @@ function bayar() {
             return;
         }
         kembalian = uangPembeli - total;
-        alert("Kembalian: Rp" + kembalian.toLocaleString());
     }
 
     document.getElementById("cartInput").value    = JSON.stringify(cart);
@@ -231,9 +259,19 @@ function bayar() {
     document.getElementById("uangInput").value    = uangPembeli;
     document.getElementById("kembaliInput").value = kembalian;
 
-    document.getElementById("formTransaksi").submit();
+    // Tutup modal konfirmasi
+    document.getElementById("modalKonfirmasi").style.display = "none";
+
+    // Tampilkan modal struk
+    document.getElementById("modalStruk").style.display = "flex";
+
+    // kirim form setelah sedikit delay
+    setTimeout(() => {
+        document.getElementById("formTransaksi").submit();
+    }, 800);
 }
 </script>
+
 
 </head>
 
@@ -241,67 +279,129 @@ function bayar() {
 
 @include('components.navbar-kasir')
 
-<div class="container">
-    <h3>Transaksi Penjualan</h3>
+    <div class="container">
+        <h3>Transaksi Penjualan</h3>
 
-    <!-- MENU GRID -->
-    <div class="menu-grid">
-        @foreach($menus as $m)
-        <button class="menu-btn"
-            onclick="addToCart('{{ $m->id }}', '{{ $m->nama_menu }}', '{{ $m->harga }}')">
-            {{ $m->nama_menu }}<br>
-            <small>Rp{{ number_format($m->harga) }}</small>
-        </button>
-        @endforeach
+        <!-- MENU GRID -->
+        <div class="menu-grid">
+            @foreach($menus as $m)
+                <button class="menu-btn"
+                    @if(!$m->bisa_dijual)
+                        disabled
+                        style="background:#c7c7c7; cursor:not-allowed; opacity:0.7;"
+                    @else
+                        onclick="addToCart('{{ $m->id }}', '{{ $m->nama_menu }}', '{{ $m->harga }}')"
+                    @endif
+                >
+                    {{ $m->nama_menu }}<br>
+                    <small>Rp{{ number_format($m->harga) }}</small>
+
+                    @if(!$m->bisa_dijual)
+                        <div style="font-size:12px; margin-top:6px; color:#b71c1c;">
+                            Stok Tidak Cukup
+                        </div>
+                    @endif
+                </button>
+            @endforeach
+        </div>
+
+        <h4 style="margin-top:25px; font-size:20px; color:#087f5b;">Keranjang</h4>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Menu</th>
+                    <th>Qty</th>
+                    <th>Subtotal</th>
+                    <th>Aksi</th>
+                </tr>
+            </thead>
+            <tbody id="cart-body"></tbody>
+        </table>
+
+        <!-- METODE PEMBAYARAN -->
+        <div style="margin-top:20px;">
+            <label><b>Metode Pembayaran</b></label>
+            <select id="metodePembayaran" onchange="showUangField()">
+                <option value="tunai">Tunai (Cash)</option>
+                <option value="qris">QRIS</option>
+            </select>
+        </div>
+
+        <!-- INPUT UANG -->
+        <div id="box-uang" style="margin-top:15px; display:none;">
+            <label><b>Nominal Uang Pembeli</b></label>
+            <input id="uangPembeli" type="number" placeholder="Masukkan nominal uang">
+        </div>
+
+        <!-- TOTAL -->
+        <div style="margin-top:25px; display:flex; justify-content:space-between;">
+            <span><b>Subtotal:</b> <span id="subtotal">Rp0</span></span>
+            <span class="total-row">Total: <span id="total">Rp0</span></span>
+        </div>
+
+        <button class="btn-bayar" onclick="bayar()">Bayar</button>
+
+        <form id="formTransaksi" method="POST" action="{{ route('kasir.transaksi.simpan') }}">
+            @csrf
+            <input type="hidden" name="cart"        id="cartInput">
+            <input type="hidden" name="total"       id="totalInput">
+            <input type="hidden" name="metode"      id="metodeInput">
+            <input type="hidden" name="uang_pembeli" id="uangInput">
+            <input type="hidden" name="kembali"      id="kembaliInput">
+        </form>
+
+    </div>
+    <div id="modalKonfirmasi" style="
+        display:none; position:fixed; inset:0;
+        background:rgba(0,0,0,0.6);
+        justify-content:center; align-items:center;">
+        <div style="
+            background:white; padding:20px; width:360px;
+            border-radius:12px; text-align:center;">
+            
+            <h3 style="margin:0; color:#087f5b;">Konfirmasi Pembayaran</h3>
+            <p id="konfirmasiText" style="margin-top:10px;"></p>
+
+            <button onclick="prosesPembayaran()" style="
+                background:#2f9e44; color:white; padding:10px 15px;
+                border:none; border-radius:8px; margin-top:15px;">
+                Ya, Bayar
+            </button>
+
+            <button onclick="tutupKonfirmasi()" style="
+                background:#e03131; color:white; padding:8px 12px;
+                border:none; border-radius:8px; margin-top:10px;">
+                Batal
+            </button>
+        </div>
     </div>
 
-    <h4 style="margin-top:25px; font-size:20px; color:#087f5b;">Keranjang</h4>
+    <!-- MODAL CETAK STRUK -->
+    <div id="modalStruk" style="
+        display:none; position:fixed; inset:0;
+        background:rgba(0,0,0,0.6);
+        justify-content:center; align-items:center;">
+        <div style="
+            background:white; padding:20px; width:360px;
+            border-radius:12px; text-align:center;">
+            
+            <h3 style="margin:0; color:#087f5b;">Transaksi Berhasil!</h3>
 
-    <table>
-        <thead>
-            <tr>
-                <th>Menu</th>
-                <th>Qty</th>
-                <th>Subtotal</th>
-                <th>Aksi</th>
-            </tr>
-        </thead>
-        <tbody id="cart-body"></tbody>
-    </table>
+            <button onclick="cetakStruk()" style="
+                background:#1e88e5; color:white; padding:10px 14px;
+                border:none; border-radius:8px; margin-top:15px;">
+                Cetak Struk
+            </button>
 
-    <!-- METODE PEMBAYARAN -->
-    <div style="margin-top:20px;">
-        <label><b>Metode Pembayaran</b></label>
-        <select id="metodePembayaran" onchange="showUangField()">
-            <option value="tunai">Tunai (Cash)</option>
-            <option value="qris">QRIS</option>
-        </select>
+            <button onclick="tutupStruk()" style="
+                background:#757575; color:white; padding:8px 12px;
+                border:none; border-radius:8px; margin-top:10px;">
+                Tutup
+            </button>
+        </div>
     </div>
 
-    <!-- INPUT UANG -->
-    <div id="box-uang" style="margin-top:15px; display:none;">
-        <label><b>Nominal Uang Pembeli</b></label>
-        <input id="uangPembeli" type="number" placeholder="Masukkan nominal uang">
-    </div>
-
-    <!-- TOTAL -->
-    <div style="margin-top:25px; display:flex; justify-content:space-between;">
-        <span><b>Subtotal:</b> <span id="subtotal">Rp0</span></span>
-        <span class="total-row">Total: <span id="total">Rp0</span></span>
-    </div>
-
-    <button class="btn-bayar" onclick="bayar()">Bayar</button>
-
-    <form id="formTransaksi" method="POST" action="{{ route('kasir.transaksi.simpan') }}">
-        @csrf
-        <input type="hidden" name="cart"        id="cartInput">
-        <input type="hidden" name="total"       id="totalInput">
-        <input type="hidden" name="metode"      id="metodeInput">
-        <input type="hidden" name="uang_pembeli" id="uangInput">
-        <input type="hidden" name="kembali"      id="kembaliInput">
-    </form>
-
-</div>
 
 </body>
 </html>

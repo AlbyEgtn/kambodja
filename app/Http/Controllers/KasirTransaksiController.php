@@ -14,23 +14,63 @@ use Illuminate\Support\Facades\DB;
 class KasirTransaksiController extends Controller
 {
     public function index()
-    {
-        $menus = Menu::all();
-        return view('kasir.transaksi', compact('menus'));
+{
+    $menus = Menu::with('resep.bahan')->get();
+
+    // cek menu yang tidak bisa dijual karena stok kurang
+    foreach ($menus as $m) {
+        $m->bisa_dijual = true;
+
+        foreach ($m->resep as $r) {
+            if ($r->bahan->stok < $r->jumlah_pakai) {
+                $m->bisa_dijual = false;
+                break;
+            }
+        }
     }
+
+    return view('kasir.transaksi', compact('menus'));
+}
+
 
     public function simpan(Request $request)
 {
     DB::beginTransaction();
 
     try {
+
         $cart = json_decode($request->cart, true);
 
         if (!$cart || count($cart) == 0) {
             return back()->with('error', 'Keranjang kosong!');
         }
 
-        // 1. SIMPAN TRANSAKSI
+        // ======================================================
+        // 1. CEK STOK BAHAN BAKU (WAJIB CUKUP SEMUA)
+        // ======================================================
+        foreach ($cart as $item) {
+
+            $resepList = Resep::where('menu_id', $item['id'])->get();
+
+            foreach ($resepList as $r) {
+
+                $bahan = BahanBaku::find($r->bahan_id);
+                if (!$bahan) continue;
+
+                $butuh = $r->jumlah_pakai * $item['qty'];   // total kebutuhan
+
+                if ($bahan->stok < $butuh) {
+                    // Batalkan dan beri pesan error
+                return redirect()->back()->with('warning', 
+                    'Stok bahan "' . $bahan->nama_bahan . '" tidak cukup untuk menu "' . $item['nama'] . '".'
+                );
+                }
+            }
+        }
+
+        // ======================================================
+        // 2. SIMPAN TRANSAKSI (Karena stok aman)
+        // ======================================================
         $transaksi = Transaksi::create([
             'no_transaksi' => "TRX-" . date("YmdHis"),
             'kasir_id'     => auth()->id(),
@@ -41,10 +81,11 @@ class KasirTransaksiController extends Controller
             'kembali'      => $request->kembali ?? 0,
         ]);
 
-        // 2. LOOP CART — SIMPAN DETAIL & KURANGI STOK
+        // ======================================================
+        // 3. SIMPAN DETAIL & KURANGI STOK
+        // ======================================================
         foreach ($cart as $item) {
 
-            // SIMPAN DETAIL
             TransaksiDetail::create([
                 'transaksi_id' => $transaksi->id,
                 'menu_id'      => $item['id'],
@@ -53,35 +94,31 @@ class KasirTransaksiController extends Controller
                 'subtotal'     => $item['qty'] * $item['harga'],
             ]);
 
-            // --- KURANGI STOK BAHAN BAKU BERDASARKAN RESEP ---
             $resepList = Resep::where('menu_id', $item['id'])->get();
 
             foreach ($resepList as $r) {
-
                 $bahan = BahanBaku::find($r->bahan_id);
                 if (!$bahan) continue;
 
-                // Total kebutuhan bahan
-                $totalPakai = $r->jumlah_pakai * $item['qty'];
+                $pakai = $r->jumlah_pakai * $item['qty'];
 
-                // Update stok berdasarkan satuan
-                $stokAkhir = $bahan->stok - $totalPakai;
+                $bahan->stok -= $pakai;
+                if ($bahan->stok < 0) $bahan->stok = 0;
 
-                if ($stokAkhir < 0) $stokAkhir = 0;
-
-                $bahan->stok = $stokAkhir;
                 $bahan->save();
             }
         }
 
         DB::commit();
-        return back()->with('success', 'Transaksi berhasil! Stok bahan baku otomatis berkurang.');
+        return back()->with('success', 'Transaksi berhasil! Stok berkurang otomatis.');
 
     } catch (\Exception $e) {
+
         DB::rollBack();
         return back()->with('error', $e->getMessage());
     }
 }
+
 
     public function riwayat()
 {

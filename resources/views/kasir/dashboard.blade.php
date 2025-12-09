@@ -205,7 +205,6 @@
             <th>Nama</th>
             <th>Jam Masuk</th>
             <th>Jam Keluar</th>
-            <th>Status</th>
             <th>Verifikasi Owner</th>
         </tr>
 
@@ -214,11 +213,6 @@
             <td>{{ Auth::user()->nama_lengkap }}</td>
             <td>{{ $absen->jam_masuk }}</td>
             <td>{{ $absen->jam_keluar ?? '-' }}</td>
-            <td>
-                <span class="badge {{ strtolower($absen->status) }}">
-                    {{ $absen->status }}
-                </span>
-            </td>
 
             <td>
                 @if($absen->verifikasi_owner == 'Belum Diverifikasi')

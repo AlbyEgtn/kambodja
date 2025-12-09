@@ -5,7 +5,6 @@
 <title>Dashboard Owner</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-
 <style>
 body { font-family:'Segoe UI',sans-serif; background:#f5f7fa; margin:0; }
 
@@ -45,58 +44,26 @@ h3 { color:#004d40; }
 }
 
 table {
-    width:100%;
-    border-collapse:collapse;
-    margin-top:10px;
+    width:100%; border-collapse:collapse; margin-top:10px;
 }
 
 th, td {
-    padding:12px;
-    border-bottom:1px solid #ddd;
+    padding:12px; border-bottom:1px solid #ddd;
 }
 
-th {
-    background:#e0f2f1;
-    text-align:left;
-}
+th { background:#e0f2f1; text-align:left; }
 
-/* ===== RESPONSIVE MOBILE ===== */
+/* RESPONSIVE */
 @media (max-width: 768px) {
-    .card {
-        padding: 18px;
-        margin: 15px;
-    }
-
-    h2 {
-        font-size: 20px;
-        text-align: center;
-    }
-
-    .grid {
-        grid-template-columns: 1fr;
-        gap: 12px;
-    }
-
-    table {
-        font-size: 14px;
-    }
-
-    th, td {
-        padding: 8px;
-    }
+    .card { padding:18px; margin:15px; }
+    h2 { font-size:20px; text-align:center; }
+    .grid { grid-template-columns:1fr; gap:12px; }
+    table { font-size:14px; }
+    th, td { padding:8px; }
 }
-
-@media (max-width: 480px) {
-    h3 {
-        font-size: 16px;
-    }
-
-    .stat p {
-        font-size: 18px;
-    }
-}
-
 </style>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 
 <body>
@@ -106,7 +73,7 @@ th {
 <div class="card">
     <h2>Dashboard Owner</h2>
 
-    <!-- Ringkasan -->
+    <!-- RINGKASAN -->
     <div class="grid">
         <div class="stat">
             <h4>Total Akun Pengguna</h4>
@@ -131,7 +98,56 @@ th {
 
     <br><hr><br>
 
-    <!-- Bahan Hampir Habis -->
+    <!-- GRAFIK -->
+    <div class="chart-grid" style="
+        display: grid;
+        grid-template-columns: 1.6fr 1fr;
+        gap: 25px;
+        margin-bottom: 40px;
+    ">
+        <!-- card grafik pendapatan -->
+        <div class="chart-card" style="
+            background:white;
+            padding:25px;
+            border-radius:16px;
+            box-shadow:0 4px 12px rgba(0,0,0,0.08);
+        ">
+            <h3 style="margin-bottom:15px;">Grafik Pendapatan</h3>
+
+            <form method="GET" style="margin-bottom:20px;">
+                <label>Dari:</label>
+                <input type="date" name="from" value="{{ request('from') }}">
+
+                <label style="margin-left:10px;">Sampai:</label>
+                <input type="date" name="to" value="{{ request('to') }}">
+
+                <button type="submit" style="
+                    background:#00695c;
+                    color:white;
+                    padding:6px 12px;
+                    border:none;
+                    border-radius:8px;
+                    cursor:pointer;
+                ">Filter</button>
+            </form>
+
+            <canvas id="chartPendapatan" height="100"></canvas>
+        </div>
+
+        <!-- card metode pembayaran -->
+        <div class="chart-card" style="
+            background:white;
+            padding:25px;
+            border-radius:16px;
+            box-shadow:0 4px 12px rgba(0,0,0,0.08);
+        ">
+            <h3 style="margin-bottom:15px;">Metode Pembayaran</h3>
+            <canvas id="chartMetode" height="230"></canvas>
+        </div>
+    </div>
+
+        
+    <!-- BAHAN HAMPIR HABIS -->
     <h3>Bahan Baku Hampir Habis</h3>
     <p>Ditampilkan otomatis berdasarkan satuan dan stok minimal.</p>
 
@@ -153,21 +169,102 @@ th {
                 <td>{{ $b->nama_bahan }}</td>
                 <td>{{ $b->stok }}</td>
                 <td>{{ $b->satuan }}</td>
-                <td>
-                    @if($b->satuan == 'pcs' && $b->stok <= 10)
-                        <span style="color:#c62828;">Stok sangat rendah (pcs &lt;= 10)</span>
+                <td style="color: #b71c1c">
+                    @if($b->stok == 0)
+                        <span class="badge badge-no">Stok Habis</span>
+
+                    @elseif($b->satuan == 'pcs' && $b->stok <= 10)
+                        <span class="badge badge-no">Sangat rendah (≤ 10 pcs)</span>
+
                     @elseif(in_array($b->satuan, ['gram','ml']) && $b->stok <= 500)
-                        <span style="color:#c62828;">Stok hampir habis (&lt;= 500 {{ $b->satuan }})</span>
+                        <span class="badge badge-no">Hampir habis (≤ 500 {{ $b->satuan }})</span>
+
                     @else
-                        <span style="color:#c62828;">Stok rendah</span>
+                        <span class="badge badge-terlambat">Stok rendah</span>
                     @endif
                 </td>
+
             </tr>
             @endforeach
         </table>
     @endif
 
+    <br><hr><br>
+
+    <!-- RIWAYAT TRANSAKSI -->
+    <h3>Riwayat Transaksi Terbaru</h3>
+
+    <table>
+        <thead>
+            <tr>
+                <th>No Transaksi</th>
+                <th>Tanggal</th>
+                <th>Total</th>
+                <th>Metode</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach($riwayat as $r)
+            <tr>
+                <td>{{ $r->no_transaksi }}</td>
+                <td>{{ $r->tanggal }}</td>
+                <td>Rp{{ number_format($r->total_harga) }}</td>
+                <td>{{ strtoupper($r->metode_bayar) }}</td>
+            </tr>
+            @endforeach
+        </tbody>
+    </table>
+
+    <br><hr><br>
+
 </div>
+
+<script>
+// ==== Grafik Pendapatan ====
+
+const tgl = @json($grafik->pluck('tgl'));
+const total = @json($grafik->pluck('total'));
+
+new Chart(document.getElementById('chartPendapatan'), {
+    type: 'line',
+    data: {
+        labels: tgl,
+        datasets: [{
+            label: 'Pendapatan',
+            data: total,
+            borderColor: '#00695c',
+            borderWidth: 3,
+            tension: 0.3,
+            fill: true,
+            backgroundColor: 'rgba(0,105,92,0.2)'
+        }]
+    },
+    options: { responsive: true }
+});
+
+
+// ==== Grafik Metode Pembayaran ====
+
+const metodeLabel = @json($metodePembayaran->pluck('metode_bayar'));
+const metodeTotal = @json($metodePembayaran->pluck('total'));
+
+new Chart(document.getElementById('chartMetode'), {
+    type: 'doughnut',
+    data: {
+        labels: metodeLabel,
+        datasets: [{
+            data: metodeTotal,
+            backgroundColor: [
+                '#00796b',
+                '#4caf50',
+                '#ff9800',
+                '#9c27b0'
+            ]
+        }]
+    },
+});
+</script>
+
 
 </body>
 </html>
